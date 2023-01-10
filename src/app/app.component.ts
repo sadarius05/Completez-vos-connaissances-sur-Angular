@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { interval } from 'rxjs';
+import { filter, interval, map, Observable, tap } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -7,10 +7,20 @@ import { interval } from 'rxjs';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  ngOnInit(): void {
-    const interval$ = interval(1000);
+  interval$!: Observable<string>;
 
-    interval$.subscribe((value) => console.log(value));
-    setTimeout(() => interval$.subscribe((value) => console.log(value)), 3000);
+  ngOnInit(): void {
+    this.interval$ = interval(1000).pipe(
+      filter((value) => value % 3 === 0),
+      map((value) =>
+        value % 2 === 0
+          ? `Je suis ${value} et je suis pair`
+          : `Je suis ${value} et je suis impair`
+      ),
+      tap((text) => this.logger(text))
+    );
+  }
+  logger(text: string) {
+    console.log(`log: ${text}`);
   }
 }
